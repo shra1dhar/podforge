@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.venv/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+*.mp3
+!podforge/assets/music/*.mp3
+!podforge/assets/sfx/*.mp3
