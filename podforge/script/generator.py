@@ -10,6 +10,18 @@ from .prompts import build_system_prompt, build_user_prompt
 logger = logging.getLogger(__name__)
 
 
+def _load_anthropic_key() -> str | None:
+    """Try loading ANTHROPIC_API_KEY from ~/.hermes/.env."""
+    from pathlib import Path
+    env_path = Path.home() / ".hermes" / ".env"
+    if env_path.exists():
+        for line in env_path.read_text().splitlines():
+            line = line.strip()
+            if line.startswith("ANTHROPIC_API_KEY=") and not line.startswith("#"):
+                return line.split("=", 1)[1].strip().strip('"').strip("'")
+    return None
+
+
 def generate_script(
     content: str,
     style: str = "casual",
@@ -34,7 +46,7 @@ def generate_script(
     Raises:
         ValueError: If the API key is not set or response is invalid.
     """
-    api_key = os.environ.get("ANTHROPIC_API_KEY")
+    api_key = os.environ.get("ANTHROPIC_API_KEY") or _load_anthropic_key()
     if not api_key:
         raise ValueError(
             "ANTHROPIC_API_KEY environment variable is not set. "

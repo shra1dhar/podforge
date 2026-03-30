@@ -27,12 +27,23 @@ VOICE_NAME_MAP = {
 }
 
 
+def _load_key_from_env_file() -> str | None:
+    """Try loading ELEVENLABS_API_KEY from ~/.hermes/.env."""
+    env_path = Path.home() / ".hermes" / ".env"
+    if env_path.exists():
+        for line in env_path.read_text().splitlines():
+            line = line.strip()
+            if line.startswith("ELEVENLABS_API_KEY=") and not line.startswith("#"):
+                return line.split("=", 1)[1].strip().strip('"').strip("'")
+    return None
+
+
 class ElevenLabsTTS(TTSBackend):
     """ElevenLabs text-to-speech backend."""
 
     def __init__(self):
         """Initialize ElevenLabs backend."""
-        self.api_key = os.environ.get("ELEVENLABS_API_KEY")
+        self.api_key = os.environ.get("ELEVENLABS_API_KEY") or _load_key_from_env_file()
         if not self.api_key:
             raise ValueError(
                 "ELEVENLABS_API_KEY environment variable is not set. "
